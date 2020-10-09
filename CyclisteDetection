@@ -24,7 +24,11 @@ import time
 from threading import Thread
 import importlib.util
 counter = 0
-bikecount = 0
+db = MySQLdb.connect(host="localhost", user="root", passwd="pass", db="TestProjetYES")
+curs= db.cursor()
+print("Connexion a la BDD reussie")
+
+
 # Define VideoStream class to handle streaming of video from webcam in separate processing thread
 # Source - Adrian Rosebrock, PyImageSearch: https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/
 class VideoStream:
@@ -271,10 +275,14 @@ while True:
     # All the results have been drawn on the frame, so it's time to display it.
     cv2.imshow('Object detector', frame)
     #bike counter
-
+    
     if object_name == 'bicycle':
         counter = counter+1
-        print("Il y a " + str(counter) +" cycliste")
+        print("Il y a " + str(counter) +" cyclistes")
+        curs.execute("UPDATE comptage SET cycliste=%i WHERE (id=1)" % (counter))
+        db.commit()
+        time.sleep(2)
+
     # Calculate framerate
     t2 = cv2.getTickCount()
     time1 = (t2-t1)/freq
