@@ -9,12 +9,23 @@ html{
 body{
   background-color: rgb(245, 245, 247);
   font-family: 'Open Sans', sans-serif;
+  background-color: white;
+}
+
+.text{
+  font-size: 40px;
+}
+
+.numbers{
+  font-size: 90px;
+  font-weight: bold;
+  z-index: 1
 }
 
 .wrapper {
   height: 100vh;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   grid-gap: 30px;
   grid-auto-rows: minmax(100px, auto);
   justify-items: stretch;
@@ -26,55 +37,130 @@ div{
   justify-content: center;
 }
 
-.one{
-  grid-column: 1/3;
-  background-color: #C0C0C0; color: white;
+.block{
+  box-shadow: 0 0 25px -10px #000000;
+  background-color: white; color: black;
+}
+
+#clockDisplay{
+  letter-spacing: 5px;
+  font-size: 70px; font-weight: bold;
+}
+
+#dateDisplay{
+  font-size: 40px;
+  text-align: center;
+}
+
+#zero{
+  grid-column: 1/2;
   border-radius: 25px;
   padding: 0.5em;
-  margin: 30px 30px 0 30px;
+  margin: 30px 0 0 30px;
   display: flex; flex-direction: column; justify-content: space-evenly;
 }
 
-.two{
-  background-color: orange; color: white;
+#one{
+  grid-column: 2/4;
+  border-radius: 25px;
+  padding: 0.5em;
+  margin: 30px 30px 0 0;
+  display: flex; flex-direction: column; justify-content: space-evenly;
+}
+
+.bikeNumber{
+  display: flex; flex-direction: row; justify-content: center; align-items: center;
+}
+
+#images_bike{
+  height: 90px; width: auto;
+}
+
+#two{
+  background-color: #99E600 !important; color: white;
+  border-radius: 25px;
+  padding: 0.5em;
+  margin: 0;
+  display: flex; flex-direction: column; justify-content: space-evenly;
+}
+
+#three{
   border-radius: 25px;
   padding: 0.5em;
   margin: 0 0 0 30px;
   display: flex; flex-direction: column; justify-content: space-evenly;
+  color: white;
+  position: relative;
+  overflow: hidden;
 }
 
-.three{
-  background-color: #C0C0C0; color: white;
-  border-radius: 25px;
-  padding: 0.5em;
-  margin: 0 30px 0 0;
-  display: flex; flex-direction: column; justify-content: space-evenly;
+#images_cloudy{
+  position: absolute; left: -20px;
+    -webkit-animation: mover 15s infinite  alternate;
+    animation: mover 15s infinite  alternate;
+}
+@-webkit-keyframes mover {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100px); }
+}
+@keyframes mover {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100px); }
 }
 
-.four{
-  background-color: #C0C0C0; color: white;
+#four{
+  grid-column: 3/3;
+  grid-row: 2/4;
   border-radius: 25px;
-  padding: 0.5em;
-  margin: 0 0 30px 30px;
-  display: flex; flex-direction: column; justify-content: space-evenly;
-}
-
-.five{
-  background-color: #C0C0C0; color: white;
-  border-radius: 25px;
-  padding: 0.5em;
+  padding: 0.5em 30px 0 30px;
   margin: 0 30px 30px 0;
   display: flex; flex-direction: column; justify-content: space-evenly;
 }
 
-
-.text{
-  font-size: 40px;
+#five{
+  grid-column: 1/3;
+  border-radius: 25px;
+  padding: 0.5em;
+  margin: 0 0 30px 30px;
+  display: flex; flex-direction: column; justify-content: space-evenly;
+  position: relative;
 }
 
-.numbers{
-  font-size: 60px;
+#images_careful{
+  height: auto; width: 100px;
+  position: absolute; left: 50%; margin-left: -50px; top: 2em;
+}
 
+.column{
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: minmax(150px, auto);
+  grid-gap: 30px;
+  justify-items: stretch;
+  align-items: center;
+}
+
+#route1{
+  grid-column: 1/3;
+  font-size: 50px;
+}
+
+#images_right{
+  width: 150px; height: auto;
+  margin-left: auto; margin-right: auto;
+}
+
+#images_front{
+  width: 150px; height: auto;
+  margin:auto;
+  margin-top: 0px;
+  transform: rotate(-90deg);
+}
+
+#route2{
+  grid-column: 2/4;
+  font-size: 50px;
 }
 
 ::-webkit-scrollbar
