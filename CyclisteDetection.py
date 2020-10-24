@@ -1,63 +1,33 @@
+
+######## Webcam Object Detection Using Tensorflow-trained Classifier #########
+#
+# Author: Evan Juras
+# Date: 10/27/19
+# Description: 
+# This program uses a TensorFlow Lite model to perform object detection on a live webcam
+# feed. It draws boxes and scores around the objects of interest in each frame from the
+# webcam. To improve FPS, the webcam object runs in a separate thread from the main program.
+# This script will work with either a Picamera or regular USB webcam.
+#
+# This code is based off the TensorFlow Lite image classification example at:
+# https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/examples/python/label_image.py
+#
+# I added my own method of drawing boxes and labels using OpenCV.
+
+# Import packages
 import os
 import argparse
 import cv2
 import numpy as np
 import sys
 import time
-import requests
-import json
-import datetime
-import schedule
-import math
-from math import*
 from threading import Thread
 import importlib.util
-import signal
-import MySQLdb
-import random
-from time import sleep
-import webbrowser, os, sys
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-
-#affichage page web
-
-chrome_options = Options()
-chrome_options.add_argument("--start-fullscreen")
-chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-chrome_options.add_experimental_option('useAutomationExtension', False)
-driver = webdriver.Chrome(options=chrome_options)
-driver.get('http://127.0.0.1/page.php')
-
-
-
-db = MySQLdb.connect(host="localhost", user="root", passwd="pass", db="comptage")
+counter = 0
+db = MySQLdb.connect(host="localhost", user="root", passwd="", db="TestProjetYES")
 curs= db.cursor()
 print("Connexion a la BDD reussie")
-#Heure actuelle
-tday = datetime.date.today()
-url = 'https://services8.arcgis.com/rxZzohbySMKHTNcy/arcgis/rest/services/ind_hdf_agglo/FeatureServer/0/query?where=code_zone%20=%20%2759350%27%20AND%20date_ech%20%3E=%20TIMESTAMP%20%27'+str(tday.year)+'-'+str(tday.month)+'-'+str(tday.da$
-url2 = 'https://openweathermap.org/data/2.5/weather?q=Lille,fr&appid=ddc29cedae9c170aa7bf1017309c59e9'
-#Initialisation compteur cyclistes
-counter = 0
-curs.execute("UPDATE comptage SET cycliste=%i WHERE (id=1)" % (counter))
-db.commit()
 
-#Recuperation donnees JSON ATMO et envoi toutes les heures
-def job():
-        json_data=requests.get(url).json()
-        valeur_air = json_data['features'][0]['attributes']['valeur']
-        couleur_air = json_data['features'][0]['attributes']['couleur']
-        qualif_air = json_data['features'][0]['attributes']['qualif']
-        json_data2=requests.get(url2).json()
-        temperature=json_data2['temp']
-        print("La temperature est de " + str(temperature) + " degres celsius")
-        print("La valeur de qualite d air est de : " + str(valeur_air))
-        print("Aujourd hui l air est :  " + str(qualif_air))
-        print("La couleur de la qualite d air est : " + str(couleur_air))
-        curs.execute("UPDATE comptage SET  couleur_air='%s', valeur_air='%s', qualif_air='%s', temperature_air='%s' WHERE (id=1)" % (couleur_air,valeur_air,qualif_air,temperature))
-        db.commit()
-schedule.every(10).minutes.do(job)
 
 # Define VideoStream class to handle streaming of video from webcam in separate processing thread
 # Source - Adrian Rosebrock, PyImageSearch: https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/
@@ -79,25 +49,11 @@ class VideoStream:
     def start(self):
         # Start the thread that reads frames from the video stream
         Thread(target=self.update,args=()).start()
-        return self    def update(self):
+        return self
+
+    def update(self):
         # Keep looping indefinitely until the thread is stopped
-        while True:
-            # If the camera is stopped, stop the thread
-            if self.stopped:
-                # Close camera resources
-                self.stream.release()
-                return
 
-            # Otherwise, grab the next frame from the stream
-            (self.grabbed, self.frame) = self.stream.read()
-
-    def read(self):
-        # Return the most recent frame
-        return self.frame
-
-    def stop(self):
-        # Indicate that the camera and thread should be stopped
-        self.stopped = True
 
 # Define and parse input arguments
 parser = argparse.ArgumentParser()
@@ -130,11 +86,10 @@ use_TPU = args.edgetpu
 pkg = importlib.util.find_spec('tflite_runtime')
 if pkg:
     from tflite_runtime.interpreter import Interpreter
-    if use_TPU:
+if use_TPU:
         from tflite_runtime.interpreter import load_delegate
 else:
     from tensorflow.lite.python.interpreter import Interpreter
-
     if use_TPU:
         from tensorflow.lite.python.interpreter import load_delegate
 
@@ -142,7 +97,31 @@ else:
 if use_TPU:
     # If user has specified the name of the .tflite file, use that name, otherwise use default 'edgetpu.tflite'
     if (GRAPH_NAME == 'detect.tflite'):
-        GRAPH_NAME = 'edgetpu.tflite'
+        GRAPH_NAME = 'edgetpu.tflite'       
+
+# Get path to current working directory
+CWD_PATH = os.getcwd()
+
+# Path to .tflite file, which contains the model that is used for object detection
+PATH_TO_CKPT = os.path.join(CWD_PATH,MODEL_NAME,GRAPH_NAME)
+
+# Path to label map file
+PATH_TO_LABELS = os.path.join(CWD_PATH,MODEL_NAME,LABELMAP_NAME)
+
+# Load the label map
+with open(PATH_TO_LABELS, 'r') as f:
+if use_TPU:
+        from tflite_runtime.interpreter import load_delegate
+else:
+    from tensorflow.lite.python.interpreter import Interpreter
+    if use_TPU:
+        from tensorflow.lite.python.interpreter import load_delegate
+
+# If using Edge TPU, assign filename for Edge TPU model
+if use_TPU:
+    # If user has specified the name of the .tflite file, use that name, otherwise use default 'edgetpu.tflite'
+    if (GRAPH_NAME == 'detect.tflite'):
+        GRAPH_NAME = 'edgetpu.tflite'       
 
 # Get path to current working directory
 CWD_PATH = os.getcwd()
@@ -162,6 +141,7 @@ with open(PATH_TO_LABELS, 'r') as f:
 # First label is '???', which has to be removed.
 if labels[0] == '???':
     del(labels[0])
+
 # Load the Tensorflow Lite model.
 # If using Edge TPU, use special load_delegate argument
 if use_TPU:
@@ -187,23 +167,39 @@ input_std = 127.5
 # Initialize frame rate calculation
 frame_rate_calc = 1
 freq = cv2.getTickFrequency()
+
 # Initialize video stream
 videostream = VideoStream(resolution=(imW,imH),framerate=30).start()
 time.sleep(1)
 
-#page web
-def web():
-        chrome_options = Options()
-        chrome_options.add_argument("--start-fullscreen")
-        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        chrome_options.add_experimental_option('useAutomationExtension', False)
-        driver = webdriver.Chrome(options=chrome_options)
-        driver.get('http://127.0.0.1/page.php')
-schedule.every(1).minute.do(web)
+#for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
+while True:
+
+    # Start timer (for calculating frame rate)
+    t1 = cv2.getTickCount()
+
+    # Grab frame from video stream
+    frame1 = videostream.read()
+
+    # Acquire frame and resize to expected shape [1xHxWx3]
+width = input_details[0]['shape'][2]
+
+floating_model = (input_details[0]['dtype'] == np.float32)
+
+input_mean = 127.5
+input_std = 127.5
+
+# Initialize frame rate calculation
+frame_rate_calc = 1
+freq = cv2.getTickFrequency()
+
+# Initialize video stream
+videostream = VideoStream(resolution=(imW,imH),framerate=30).start()
+time.sleep(1)
 
 #for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
 while True:
-    schedule.run_pending()
+
     # Start timer (for calculating frame rate)
     t1 = cv2.getTickCount()
 
@@ -222,7 +218,32 @@ while True:
 
     # Perform the actual detection by running the model with the image as input
     interpreter.set_tensor(input_details[0]['index'],input_data)
-   interpreter.invoke()
+    interpreter.invoke()
+
+    # Retrieve detection results
+    boxes = interpreter.get_tensor(output_details[0]['index'])[0] # Bounding box coordinates of detected objects
+    classes = interpreter.get_tensor(output_details[1]['index'])[0] # Class index of detected objects
+    scores = interpreter.get_tensor(output_details[2]['index'])[0] # Confidence of detected objects
+    #num = interpreter.get_tensor(output_details[3]['index'])[0]  # Total number of detected objects (inaccurate and not needed)
+    # Loop over all detections and draw detection box if confidence is above minimum threshold
+    for i in range(len(scores)):
+        if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
+
+            # Get bounding box coordinates and draw box
+            # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
+    frame = frame1.copy()
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame_resized = cv2.resize(frame_rgb, (width, height))
+    input_data = np.expand_dims(frame_resized, axis=0)
+
+    # Normalize pixel values if using a floating model (i.e. if model is non-quantized)
+    if floating_model:
+        input_data = (np.float32(input_data) - input_mean) / input_std
+
+    # Perform the actual detection by running the model with the image as input
+    interpreter.set_tensor(input_details[0]['index'],input_data)
+    interpreter.invoke()
+
     # Retrieve detection results
     boxes = interpreter.get_tensor(output_details[0]['index'])[0] # Bounding box coordinates of detected objects
     classes = interpreter.get_tensor(output_details[1]['index'])[0] # Class index of detected objects
@@ -239,7 +260,8 @@ while True:
             ymax = int(min(imH,(boxes[i][2] * imH)))
             xmax = int(min(imW,(boxes[i][3] * imW)))
 
-            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (10, 255,0), 2)
+            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
+
             # Draw label
             object_name = labels[int(classes[i])] # Look up object name from "labels" array using class index
             label = '%s: %d%%' % (object_name, int(scores[i]*100)) # Example: 'person: 72%'
@@ -250,15 +272,17 @@ while True:
 
     # Draw framerate in corner of frame
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
-   # All the results have been drawn on the frame, so it's time to display it.
+
+    # All the results have been drawn on the frame, so it's time to display it.
     cv2.imshow('Object detector', frame)
     #bike counter
-    if object_name == 'bicycle'
+    
+    if object_name == 'bicycle':
         counter = counter+1
         print("Il y a " + str(counter) +" cyclistes")
         curs.execute("UPDATE comptage SET cycliste=%i WHERE (id=1)" % (counter))
         db.commit()
-        time.sleep(1)
+        time.sleep(2)
 
     # Calculate framerate
     t2 = cv2.getTickCount()

@@ -13,7 +13,7 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" name="viewport" content="device-width, initial-scale=1.0">
+  <meta charset="utf-8" name="viewport" content="device-width", initial-scale="1.0">
   <link rel="stylesheet" href="style3.css">
 </head>
 <body>
