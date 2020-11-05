@@ -1,0 +1,5 @@
+#!/bin/bash
+sleep 20
+/usr/bin/chromium-browser 127.0.0.1/indexJSON.php --start-fullscreen
+
+
